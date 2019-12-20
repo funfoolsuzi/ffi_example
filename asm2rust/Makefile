@@ -1,14 +1,16 @@
 .PHONY: build rm rustasm
 
+KERNEL_NAME := $(shell uname)
+
 build: program
 
 rm:
 	rm greet.o program.o program
 
 program: greet.o program.o
-	if [ "$(uname)"==Linux ]; then \
+	if [ $(KERNEL_NAME) = Linux ]; then \
 		ld -o program -dynamic-linker /lib64/ld-linux-x86-64.so.2 -lc greet.o program.o; \
-	elif [ "$(uname)"==Darwin ]; then \
+	elif [ $(KERNEL_NAME) = Darwin ]; then \
 		ld -e _start -arch x86_64 -lSystem greet.o program.o -o program; \
 	fi
 
@@ -18,9 +20,9 @@ greet.o:
 	cp `find target/release/deps -name "asm2rust-*.o"` greet.o
 
 program.o:
-	if [ "$(uname)"==Linux ]; then \
+	if [ $(KERNEL_NAME) = Linux ]; then \
 		as -o program.o program_linux.s; \
-	elif [ "$(uname)"==Darwin ]; then \
+	elif [ $(KERNEL_NAME) = Darwin ]; then \
 		as -o program.o program_darwin.s; \
 	fi
 
